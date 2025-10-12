@@ -5,7 +5,7 @@ const router = express.Router();
 
 export default () => {
 	authenticationRouter(router);
-	router.get("/health", (req, res) => {
+	router.get("/", (req, res) => {
 		res.status(200).send("OK");
 	});
 
