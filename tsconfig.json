@@ -1,0 +1,17 @@
+{
+	"ts-node": {
+		"require": ["tsconfig-paths/register"]
+	},
+	"compilerOptions": {
+		"module": "nodenext",
+		"moduleResolution": "nodenext",
+		"paths": {
+			"@/*": ["./src/*"]
+		},
+		"outDir": "dist",
+		"sourceMap": true,
+		"noImplicitAny": true,
+		"target": "ES2021"
+	},
+	"include": ["src/**/*"]
+}
