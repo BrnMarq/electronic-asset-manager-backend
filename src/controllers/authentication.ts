@@ -50,12 +50,7 @@ export const login = async (req: express.Request, res: express.Response) => {
 			}
 		);
 
-		res.cookie("token", token, {
-			httpOnly: true,
-			secure: config.nodeEnv === "production",
-		});
-
-		res.status(200).json(user);
+		res.status(200).json({ token, user });
 	} catch (error) {
 		res.status(500).json({ message: "Internal server error" });
 		console.error(error);
