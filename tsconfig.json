@@ -3,7 +3,6 @@
 		"require": ["tsconfig-paths/register"]
 	},
 	"compilerOptions": {
-		"baseUrl": ".",
 		"module": "nodenext",
 		"moduleResolution": "nodenext",
 		"paths": {
