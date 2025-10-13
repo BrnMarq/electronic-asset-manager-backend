@@ -42,15 +42,17 @@ export const login = async (req: express.Request, res: express.Response) => {
 			return res.status(403).json({ message: "Invalid credentials" });
 		}
 
-		const token = jwt.sign(
-			{ id: user.id, username: user.username, email: user.email },
-			config.jwtSecret,
-			{
-				expiresIn: "1h",
-			}
-		);
+		const responseUser = {
+			id: user.id,
+			username: user.username,
+			email: user.email,
+		};
 
-		res.status(200).json({ token, user });
+		const token = jwt.sign(responseUser, config.jwtSecret, {
+			expiresIn: "1h",
+		});
+
+		res.status(200).json({ token, responseUser });
 	} catch (error) {
 		res.status(500).json({ message: "Internal server error" });
 		console.error(error);
