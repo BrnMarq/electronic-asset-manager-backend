@@ -9,6 +9,7 @@ const sequelize: Sequelize = new Sequelize(config.database.url, {
 		timestamps: true,
 		underscored: true,
 	},
+	dialectModule: pg,
 });
 
 const testConnection: () => Promise<void> = async () => {
