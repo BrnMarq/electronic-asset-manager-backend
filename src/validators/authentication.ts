@@ -1,5 +1,5 @@
 import { checkSchema } from "express-validator";
-import User from "@/models/User";
+import User from "../models/User";
 
 const checkUserExistenceWithField = async (field: string, value: string) => {
 	const existingUser = await User.findOne({ where: { [field]: value } });

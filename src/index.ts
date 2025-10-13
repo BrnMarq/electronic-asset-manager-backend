@@ -3,9 +3,9 @@ import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import compression from "compression";
-import sequelize from "@/config/database";
-import config from "@/config";
-import router from "@/router";
+import sequelize from "./config/database";
+import config from "./config";
+import router from "./router";
 
 const app = express();
 

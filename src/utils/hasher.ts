@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import config from "@/config";
+import config from "../config";
 
 export const random = (bytes = 128) =>
 	crypto.randomBytes(bytes).toString("base64");

@@ -1,8 +1,11 @@
 import express from "express";
 
-import { registerValidator, loginValidator } from "@/validators/authentication";
+import {
+	registerValidator,
+	loginValidator,
+} from "../validators/authentication";
 
-import { register, login } from "@/controllers/authentication";
+import { register, login } from "../controllers/authentication";
 
 export default (router: express.Router) => {
 	router.post("/auth/register", registerValidator, register);

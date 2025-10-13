@@ -1,9 +1,9 @@
 import express from "express";
 import { validationResult } from "express-validator";
 import jwt from "jsonwebtoken";
-import { random, hashPassword } from "@/utils/hasher";
-import User from "@/models/User";
-import config from "@/config";
+import { random, hashPassword } from "../utils/hasher";
+import User from "../models/User";
+import config from "../config";
 
 export const register = async (req: express.Request, res: express.Response) => {
 	try {
