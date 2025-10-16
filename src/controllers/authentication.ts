@@ -52,7 +52,7 @@ export const login = async (req: express.Request, res: express.Response) => {
 			expiresIn: "1h",
 		});
 
-		res.status(200).json({ token, user: responseUser });
+		res.status(200).json({ token });
 	} catch (error) {
 		res.status(500).json({ message: "Internal server error" });
 		console.error(error);
