@@ -10,7 +10,7 @@ ChangeLog.init(
 			primaryKey: true,
 			autoIncrement: true,
 		},
-		assest_id: {
+		asset_id: {
 			type: DataTypes.INTEGER,
 			allowNull: false,
 		},

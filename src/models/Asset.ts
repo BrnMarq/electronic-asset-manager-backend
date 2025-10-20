@@ -58,22 +58,7 @@ Asset.init(
 			type: DataTypes.DATE,
 			allowNull: false,
 		},
-		created_at: {
-			type: DataTypes.DATE,
-			defaultValue: DataTypes.NOW,
-		},
-		updated_at: {
-			type: DataTypes.DATE,
-			defaultValue: DataTypes.NOW,
-		},
 		created_by: {
-			type: DataTypes.INTEGER,
-			references: {
-				model: User.tableName,
-				key: "id",
-			},
-		},
-		updated_by: {
 			type: DataTypes.INTEGER,
 			references: {
 				model: User.tableName,
@@ -85,7 +70,9 @@ Asset.init(
 		sequelize,
 		modelName: "Asset",
 		tableName: "asset",
-		timestamps: false,
+		timestamps: true,
+		updatedAt: false,
+		paranoid: true,
 	}
 );
 
