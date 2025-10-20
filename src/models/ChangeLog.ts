@@ -70,7 +70,7 @@ ChangeLog.init(
 	{
 		sequelize,
 		modelName: "ChangeLog",
-		tableName: "changeLog",
+		tableName: "change_log",
 		timestamps: false,
 	}
 );

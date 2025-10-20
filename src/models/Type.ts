@@ -25,7 +25,7 @@ Type.init(
 		parent_id: {
 			type: DataTypes.INTEGER,
 			references: {
-				model: Type.tableName,
+				model: "type",
 				key: "id",
 			},
 		},
