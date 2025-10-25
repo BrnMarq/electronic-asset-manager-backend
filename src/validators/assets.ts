@@ -112,3 +112,102 @@ export const deleteAssetValidator = checkSchema({
 		},
 	},
 });
+
+///////////////////////////////////////////////////////////
+export const relocateAssetValidator = checkSchema({
+  id: {
+    in: ["params"],
+    isInt: {
+      errorMessage: "ID must be an integer.",
+    },
+    notEmpty: {
+      errorMessage: "ID is required.",
+    },
+  },
+  location_id: {
+    in: ["body"],
+    isInt: {
+      errorMessage: "Location ID must be an integer.",
+    },
+    notEmpty: {
+      errorMessage: "Location ID is required.",
+    },
+    custom: {
+      options: async (value) => {
+        const location = await Location.findByPk(value);
+        if (!location) return Promise.reject("Location ID does not exist.");
+      },
+    },
+  },
+  change_reason: {
+    in: ["body"],
+    isString: {
+      errorMessage: "Change reason must be a string.",
+    },
+    notEmpty: {
+      errorMessage: "Change reason is required.",
+    },
+  },
+});
+
+export const updateCostValidator = checkSchema({
+  id: {
+    in: ["params"],
+    isInt: {
+      errorMessage: "ID must be an integer.",
+    },
+    notEmpty: {
+      errorMessage: "ID is required.",
+    },
+  },
+  cost: {
+    in: ["body"],
+    isFloat: {
+      options: { min: 0 },
+      errorMessage: "Cost must be a positive number.",
+    },
+    notEmpty: {
+      errorMessage: "Cost is required.",
+    },
+  },
+  change_reason: {
+    in: ["body"],
+    isString: {
+      errorMessage: "Change reason must be a string.",
+    },
+    notEmpty: {
+      errorMessage: "Change reason is required.",
+    },
+  },
+});
+
+export const updateStatusValidator = checkSchema({
+  id: {
+    in: ["params"],
+    isInt: {
+      errorMessage: "ID must be an integer.",
+    },
+    notEmpty: {
+      errorMessage: "ID is required.",
+    },
+  },
+  status: {
+    in: ["body"],
+    isIn: {
+      options: [["active", "inactive", "decommissioned"]],
+      errorMessage: "Status must be: active, inactive, or decommissioned.",
+    },
+    notEmpty: {
+      errorMessage: "Status is required.",
+    },
+  },
+  change_reason: {
+    in: ["body"],
+    isString: {
+      errorMessage: "Change reason must be a string.",
+    },
+    notEmpty: {
+      errorMessage: "Change reason is required.",
+    },
+  },
+});
