@@ -1,6 +1,7 @@
 import pg from "pg";
 import { Sequelize } from "sequelize-typescript";
 import config from ".";
+import path from "path";
 
 const sequelize: Sequelize = new Sequelize(config.database.url, {
 	dialect: "postgres",
@@ -10,9 +11,10 @@ const sequelize: Sequelize = new Sequelize(config.database.url, {
 		underscored: true,
 	},
 	dialectModule: pg,
+	models: [path.join(__dirname, "../models/**/*.ts")],
 });
 
-const testConnection: () => Promise<void> = async () => {
+const authenticate: () => Promise<void> = async () => {
 	try {
 		await sequelize.authenticate();
 		console.log(
@@ -23,6 +25,6 @@ const testConnection: () => Promise<void> = async () => {
 	}
 };
 
-testConnection();
+authenticate();
 
 export default sequelize;

@@ -1,52 +1,62 @@
-import { Model, DataTypes } from "sequelize";
-import sequelize from "../config/database";
-import Role from "../models/Role";
+import {
+	Table,
+	Column,
+	Model,
+	DataType,
+	PrimaryKey,
+	AutoIncrement,
+	AllowNull,
+	Unique,
+	ForeignKey,
+	BelongsTo,
+} from "sequelize-typescript";
+import { Role } from "../models/Role";
 
-class User extends Model {}
+@Table({
+	tableName: "users",
+	modelName: "User",
+	timestamps: true,
+	updatedAt: false,
+	paranoid: true,
+})
+export class User extends Model {
+	@PrimaryKey
+	@AutoIncrement
+	@Column(DataType.INTEGER)
+	id!: number;
 
-User.init(
-	{
-		id: {
-			type: DataTypes.INTEGER,
-			primaryKey: true,
-			autoIncrement: true,
-		},
-		username: {
-			type: DataTypes.STRING,
-			allowNull: false,
-			unique: true,
-		},
-		email: {
-			type: DataTypes.STRING,
-			allowNull: false,
-			unique: true,
-		},
-		salt: {
-			type: DataTypes.STRING,
-			allowNull: false,
-		},
-		hashed_password: {
-			type: DataTypes.STRING,
-			allowNull: false,
-		},
-		role_id: {
-			type: DataTypes.INTEGER,
-			references: {
-				model: Role.tableName,
-				key: "id",
-			},
-		},
-		created_at: {
-			type: DataTypes.DATE,
-			defaultValue: DataTypes.NOW,
-		},
-	},
-	{
-		sequelize,
-		modelName: "User",
-		tableName: "users",
-		timestamps: false,
-	}
-);
+	@AllowNull(false)
+	@Unique
+	@Column(DataType.STRING)
+	username!: string;
+
+	@AllowNull(false)
+	@Unique
+	@Column(DataType.STRING)
+	email!: string;
+
+	@AllowNull(false)
+	@Column(DataType.STRING)
+	first_name!: string;
+
+	@AllowNull(false)
+	@Column(DataType.STRING)
+	last_name!: string;
+
+	@AllowNull(false)
+	@Column(DataType.STRING)
+	salt!: string;
+
+	@AllowNull(false)
+	@Column(DataType.STRING)
+	hashed_password!: string;
+
+	@ForeignKey(() => Role)
+	@Column(DataType.INTEGER)
+	role_id?: number;
+
+	@BelongsTo(() => Role)
+	role?: Role;
+}
 
 export default User;

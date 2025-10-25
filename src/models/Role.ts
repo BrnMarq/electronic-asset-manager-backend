@@ -1,30 +1,31 @@
-import { Model, DataTypes } from "sequelize";
-import sequelize from "../config/database";
+import {
+	Table,
+	Column,
+	Model,
+	DataType,
+	PrimaryKey,
+	AutoIncrement,
+	AllowNull,
+} from "sequelize-typescript";
 
-class Role extends Model {}
+@Table({
+	tableName: "roles",
+	modelName: "Role",
+	timestamps: false,
+})
+export class Role extends Model {
+	@PrimaryKey
+	@AutoIncrement
+	@Column(DataType.INTEGER)
+	id!: number;
 
-Role.init(
-	{
-		id: {
-			type: DataTypes.INTEGER,
-			primaryKey: true,
-			autoIncrement: true,
-		},
-		name: {
-			type: DataTypes.STRING,
-			allowNull: false,
-		},
-		permissions: {
-			type: DataTypes.JSON,
-			allowNull: true,
-		},
-	},
-	{
-		sequelize,
-		modelName: "Role",
-		tableName: "roles",
-		timestamps: false,
-	}
-);
+	@AllowNull(false)
+	@Column(DataType.STRING)
+	name!: string;
+
+	@AllowNull(true)
+	@Column(DataType.JSON)
+	permissions?: object;
+}
 
 export default Role;

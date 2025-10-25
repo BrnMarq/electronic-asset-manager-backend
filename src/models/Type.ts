@@ -1,45 +1,49 @@
-import { Model, DataTypes } from "sequelize";
-import sequelize from "../config/database";
+import {
+	Table,
+	Column,
+	Model,
+	DataType,
+	PrimaryKey,
+	AutoIncrement,
+	AllowNull,
+	ForeignKey,
+	BelongsTo,
+	Default,
+} from "sequelize-typescript";
 
-class Type extends Model {}
+@Table({
+	tableName: "type",
+	modelName: "Type",
+	timestamps: false,
+})
+export class Type extends Model {
+	@PrimaryKey
+	@AutoIncrement
+	@Column(DataType.INTEGER)
+	id!: number;
 
-Type.init(
-	{
-		id: {
-			type: DataTypes.INTEGER,
-			primaryKey: true,
-			autoIncrement: true,
-		},
-		name: {
-			type: DataTypes.STRING,
-			allowNull: false,
-		},
-		category: {
-			type: DataTypes.STRING,
-			allowNull: false,
-		},
-		description: {
-			type: DataTypes.STRING,
-			allowNull: true,
-		},
-		parent_id: {
-			type: DataTypes.INTEGER,
-			references: {
-				model: "type",
-				key: "id",
-			},
-		},
-		created_at: {
-			type: DataTypes.DATE,
-			defaultValue: DataTypes.NOW,
-		},
-	},
-	{
-		sequelize,
-		modelName: "Type",
-		tableName: "type",
-		timestamps: false,
-	}
-);
+	@AllowNull(false)
+	@Column(DataType.STRING)
+	name!: string;
+
+	@AllowNull(false)
+	@Column(DataType.STRING)
+	category!: string;
+
+	@AllowNull(true)
+	@Column(DataType.STRING)
+	description?: string;
+
+	@ForeignKey(() => Type)
+	@Column(DataType.INTEGER)
+	parent_id?: number;
+
+	@BelongsTo(() => Type)
+	parent?: Type;
+
+	@Default(DataType.NOW)
+	@Column(DataType.DATE)
+	created_at!: Date;
+}
 
 export default Type;

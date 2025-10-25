@@ -1,78 +1,84 @@
-import { Model, DataTypes } from "sequelize";
-import sequelize from "../config/database";
+import {
+	Table,
+	Column,
+	Model,
+	DataType,
+	PrimaryKey,
+	AutoIncrement,
+	AllowNull,
+} from "sequelize-typescript";
 
-class ChangeLog extends Model {}
+export enum ChangeType {
+	UPDATE = "update",
+	DELETE = "delete",
+}
 
-ChangeLog.init(
-	{
-		id: {
-			type: DataTypes.INTEGER,
-			primaryKey: true,
-			autoIncrement: true,
-		},
-		asset_id: {
-			type: DataTypes.INTEGER,
-			allowNull: false,
-		},
-		changed_at: {
-			type: DataTypes.DATE,
-			defaultValue: DataTypes.NOW,
-		},
-		user_id: {
-			type: DataTypes.INTEGER,
-			allowNull: false,
-		},
-		change_type: {
-			type: DataTypes.STRING,
-			allowNull: false,
-		},
-		change_reason: {
-			type: DataTypes.STRING,
-			allowNull: true,
-		},
-		old_name: {
-			type: DataTypes.STRING,
-			allowNull: false,
-		},
-		old_serial_number: {
-			type: DataTypes.INTEGER,
-			allowNull: false,
-		},
-		old_type_id: {
-			type: DataTypes.INTEGER,
-			allowNull: false,
-		},
-		old_description: {
-			type: DataTypes.STRING,
-			allowNull: false,
-		},
-		old_responsible_id: {
-			type: DataTypes.INTEGER,
-			allowNull: false,
-		},
-		old_location_id: {
-			type: DataTypes.INTEGER,
-			allowNull: false,
-		},
-		old_cost: {
-			type: DataTypes.DOUBLE,
-			allowNull: false,
-		},
-		old_status: {
-			type: DataTypes.STRING,
-			allowNull: false,
-		},
-		old_acquisition_date: {
-			type: DataTypes.DATE,
-			allowNull: false,
-		},
-	},
-	{
-		sequelize,
-		modelName: "ChangeLog",
-		tableName: "change_log",
-		timestamps: false,
-	}
-);
+@Table({
+	tableName: "change_log",
+	modelName: "ChangeLog",
+	timestamps: true,
+	updatedAt: false,
+})
+export class ChangeLog extends Model {
+	@PrimaryKey
+	@AutoIncrement
+	@Column(DataType.INTEGER)
+	id!: number;
+
+	@AllowNull(false)
+	@Column(DataType.INTEGER)
+	asset_id!: number;
+
+	@AllowNull(false)
+	@Column(DataType.INTEGER)
+	user_id!: number;
+
+	@AllowNull(false)
+	@Column({
+		type: DataType.ENUM,
+		values: Object.values(ChangeType),
+	})
+	change_type!: ChangeType;
+
+	@AllowNull(true)
+	@Column(DataType.STRING)
+	change_reason?: string;
+
+	@AllowNull(false)
+	@Column(DataType.STRING)
+	old_name!: string;
+
+	@AllowNull(false)
+	@Column(DataType.INTEGER)
+	old_serial_number!: number;
+
+	@AllowNull(false)
+	@Column(DataType.INTEGER)
+	old_type_id!: number;
+
+	@AllowNull(false)
+	@Column(DataType.STRING)
+	old_description!: string;
+
+	@AllowNull(false)
+	@Column(DataType.INTEGER)
+	old_responsible_id!: number;
+
+	@AllowNull(false)
+	@Column(DataType.INTEGER)
+	old_location_id!: number;
+
+	@AllowNull(false)
+	@Column(DataType.DOUBLE)
+	old_cost!: number;
+
+	@AllowNull(false)
+	@Column(DataType.STRING)
+	old_status!: string;
+
+	@AllowNull(false)
+	@Column(DataType.DATE)
+	old_acquisition_date!: Date;
+}
 
 export default ChangeLog;

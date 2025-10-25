@@ -1,34 +1,36 @@
-import { Model, DataTypes } from "sequelize";
-import sequelize from "../config/database";
+import {
+	Table,
+	Column,
+	Model,
+	DataType,
+	PrimaryKey,
+	AutoIncrement,
+	AllowNull,
+	Default,
+} from "sequelize-typescript";
 
-class Location extends Model {}
+@Table({
+	tableName: "location",
+	modelName: "Location",
+	timestamps: false,
+})
+export class Location extends Model {
+	@PrimaryKey
+	@AutoIncrement
+	@Column(DataType.INTEGER)
+	id!: number;
 
-Location.init(
-	{
-		id: {
-			type: DataTypes.INTEGER,
-			primaryKey: true,
-			autoIncrement: true,
-		},
-		name: {
-			type: DataTypes.STRING,
-			allowNull: false,
-		},
-		description: {
-			type: DataTypes.STRING,
-			allowNull: true,
-		},
-		created_at: {
-			type: DataTypes.DATE,
-			defaultValue: DataTypes.NOW,
-		},
-	},
-	{
-		sequelize,
-		modelName: "Location",
-		tableName: "location",
-		timestamps: false,
-	}
-);
+	@AllowNull(false)
+	@Column(DataType.STRING)
+	name!: string;
+
+	@AllowNull(true)
+	@Column(DataType.STRING)
+	description?: string;
+
+	@Default(DataType.NOW)
+	@Column(DataType.DATE)
+	created_at!: Date;
+}
 
 export default Location;

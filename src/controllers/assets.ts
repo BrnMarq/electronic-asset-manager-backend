@@ -1,6 +1,6 @@
 import express from "express";
 import { validationResult } from "express-validator";
-import Asset from "../models/Asset";
+import { Asset } from "../models/Asset";
 
 export const createAsset = async (
 	req: express.Request,
