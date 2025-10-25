@@ -11,7 +11,9 @@
 		"outDir": "dist",
 		"sourceMap": true,
 		"noImplicitAny": true,
-		"target": "ES2021"
+		"target": "ES2021",
+		"experimentalDecorators": true,
+		"emitDecoratorMetadata": true
 	},
 	"include": ["src/**/*"]
 }

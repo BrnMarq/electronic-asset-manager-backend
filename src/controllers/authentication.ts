@@ -2,12 +2,13 @@ import express from "express";
 import { validationResult } from "express-validator";
 import jwt from "jsonwebtoken";
 import { random, hashPassword } from "../utils/hasher";
-import User from "../models/User";
+import { User } from "../models/User";
 import config from "../config";
 
 export const register = async (req: express.Request, res: express.Response) => {
 	try {
-		const { username, email, password } = req.body;
+		const { username, email, password, first_name, last_name, role_id } =
+			req.body;
 
 		const errors = validationResult(req);
 		if (!errors.isEmpty()) {
@@ -18,6 +19,9 @@ export const register = async (req: express.Request, res: express.Response) => {
 		const user = await User.create({
 			username,
 			email,
+			first_name,
+			last_name,
+			role_id,
 			salt,
 			hashed_password: hashPassword(salt, password),
 		});
