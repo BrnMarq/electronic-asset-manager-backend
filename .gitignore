@@ -25,6 +25,7 @@ build/
 .idea/
 .DS_Store
 Thumbs.db
+WARP.md
 
 # Test coverage
 coverage/
