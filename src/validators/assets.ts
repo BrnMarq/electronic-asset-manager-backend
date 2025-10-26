@@ -132,12 +132,6 @@ export const relocateAssetValidator = checkSchema({
     notEmpty: {
       errorMessage: "Location ID is required.",
     },
-    custom: {
-      options: async (value) => {
-        const location = await Location.findByPk(value);
-        if (!location) return Promise.reject("Location ID does not exist.");
-      },
-    },
   },
   change_reason: {
     in: ["body"],
@@ -146,6 +140,15 @@ export const relocateAssetValidator = checkSchema({
     },
     notEmpty: {
       errorMessage: "Change reason is required.",
+    },
+  },
+  user_id: {
+    in: ["body"],
+    isInt: {
+      errorMessage: "User ID must be an integer.",
+    },
+    notEmpty: {
+      errorMessage: "User ID is required.",
     },
   },
 });
