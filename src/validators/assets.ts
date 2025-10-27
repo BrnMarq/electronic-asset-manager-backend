@@ -4,6 +4,13 @@ import { AssetStatus } from "../models/Asset";
 import Type from "../models/Type";
 import User from "../models/User";
 
+const makeOptional: (schema: ParamSchema) => ParamSchema = (
+	schema: ParamSchema
+) => ({
+	...schema,
+	optional: { options: { nullable: true } },
+});
+
 const id: ParamSchema = {
 	in: ["params"],
 	isInt: {
@@ -148,20 +155,14 @@ export const deleteAssetValidator = checkSchema({
 	id,
 });
 
-export const relocateAssetValidator = checkSchema({
-	id,
-	location_id,
-	change_reason,
-});
-
-export const updateCostValidator = checkSchema({
-	id,
-	cost,
-	change_reason,
-});
-
-export const updateStatusValidator = checkSchema({
-	id,
-	status,
-	change_reason,
+export const updateAssetValidator = checkSchema({
+	name: makeOptional(name),
+	serial_number: makeOptional(serial_number),
+	type_id: makeOptional(type_id),
+	description: makeOptional(description),
+	responsible_id: makeOptional(responsible_id),
+	location_id: makeOptional(location_id),
+	status: makeOptional(status),
+	cost: makeOptional(cost),
+	acquisition_date: makeOptional(acquisition_date),
 });

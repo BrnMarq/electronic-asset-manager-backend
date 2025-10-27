@@ -14,7 +14,8 @@ import {
 @Table({
 	tableName: "type",
 	modelName: "Type",
-	timestamps: false,
+	timestamps: true,
+	updatedAt: false,
 })
 export class Type extends Model {
 	@PrimaryKey
@@ -40,10 +41,6 @@ export class Type extends Model {
 
 	@BelongsTo(() => Type)
 	parent?: Type;
-
-	@Default(DataType.NOW)
-	@Column(DataType.DATE)
-	created_at!: Date;
 }
 
 export default Type;

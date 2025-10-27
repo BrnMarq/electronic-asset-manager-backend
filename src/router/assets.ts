@@ -3,24 +3,26 @@ import express from "express";
 import {
 	createAsset,
 	deleteAsset,
-	relocateAsset,
-	updateAssetCost,
-	updateAssetStatus,
+	updateAsset,
+	getCreateAssetInfo,
 } from "../controllers/assets";
 import {
 	createAssetValidator,
 	deleteAssetValidator,
-	relocateAssetValidator,
-	updateCostValidator,
-	updateStatusValidator,
+	updateAssetValidator,
 } from "../validators/assets";
 import { authenticatedMiddleware } from "../middlewares/authentication";
 
 export default (router: express.Router) => {
-	router.get("/assets", (req, res) => {
+	router.get("/assets", (_, res) => {
 		res.status(200).send("OK");
 	});
 
+	router.get(
+		"/assets/create-info",
+		authenticatedMiddleware,
+		getCreateAssetInfo
+	);
 	router.post(
 		"/assets",
 		authenticatedMiddleware,
@@ -33,23 +35,10 @@ export default (router: express.Router) => {
 		deleteAssetValidator,
 		deleteAsset
 	);
-
 	router.patch(
-		"/assets/:id/relocate",
+		"/assets/:id",
 		authenticatedMiddleware,
-		relocateAssetValidator,
-		relocateAsset
-	);
-	router.patch(
-		"/assets/:id/cost",
-		authenticatedMiddleware,
-		updateCostValidator,
-		updateAssetCost
-	);
-	router.patch(
-		"/assets/:id/status",
-		authenticatedMiddleware,
-		updateStatusValidator,
-		updateAssetStatus
+		updateAssetValidator,
+		updateAsset
 	);
 };

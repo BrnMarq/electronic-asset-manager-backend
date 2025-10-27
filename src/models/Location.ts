@@ -6,13 +6,13 @@ import {
 	PrimaryKey,
 	AutoIncrement,
 	AllowNull,
-	Default,
 } from "sequelize-typescript";
 
 @Table({
 	tableName: "location",
 	modelName: "Location",
-	timestamps: false,
+	timestamps: true,
+	updatedAt: false,
 })
 export class Location extends Model {
 	@PrimaryKey
@@ -27,10 +27,6 @@ export class Location extends Model {
 	@AllowNull(true)
 	@Column(DataType.STRING)
 	description?: string;
-
-	@Default(DataType.NOW)
-	@Column(DataType.DATE)
-	created_at!: Date;
 }
 
 export default Location;

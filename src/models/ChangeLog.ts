@@ -9,9 +9,7 @@ import {
 } from "sequelize-typescript";
 
 export enum ChangeType {
-	UPDATE_COST = "update cost",
-	UPDATE_STATUS = "update status",
-	UPDATE_LOCATION = "update location",
+	UPDATE = "update",
 	DELETE = "delete",
 }
 
