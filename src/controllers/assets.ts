@@ -2,9 +2,9 @@ import { Response } from "express";
 import { validationResult } from "express-validator";
 import Asset from "../models/Asset";
 import { ChangeType } from "../models/ChangeLog";
-import Location from "@/models/Location";
-import Type from "@/models/Type";
-import User from "@/models/User";
+import Location from "../models/Location";
+import Type from "../models/Type";
+import User from "../models/User";
 import { AuthenticatedRequest } from "../middlewares/authentication";
 
 export const getCreateAssetInfo = async (
