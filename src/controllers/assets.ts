@@ -1,12 +1,10 @@
-import express from "express";
+import { Response } from "express";
 import { validationResult } from "express-validator";
 import Asset from "../models/Asset";
-import { ChangeType } from "@/models/ChangeLog";
+import { ChangeType } from "../models/ChangeLog";
+import { AuthenticatedRequest } from "../middlewares/authentication";
 
-export const createAsset = async (
-	req: express.Request,
-	res: express.Response
-) => {
+export const createAsset = async (req: AuthenticatedRequest, res: Response) => {
 	try {
 		const {
 			name,
@@ -19,6 +17,7 @@ export const createAsset = async (
 			cost,
 			acquisition_date,
 		} = req.body;
+		const { user_id } = req;
 
 		const errors = validationResult(req);
 		if (!errors.isEmpty()) {
@@ -35,7 +34,7 @@ export const createAsset = async (
 			status,
 			cost,
 			acquisition_date,
-			created_by: 1,
+			created_by: user_id,
 		});
 		res.status(201).json(asset.toJSON());
 	} catch (error) {
@@ -44,12 +43,10 @@ export const createAsset = async (
 	}
 };
 
-export const deleteAsset = async (
-	req: express.Request,
-	res: express.Response
-) => {
+export const deleteAsset = async (req: AuthenticatedRequest, res: Response) => {
 	try {
 		const { id } = req.params;
+		const { user_id } = req;
 
 		const errors = validationResult(req);
 		if (!errors.isEmpty()) {
@@ -62,7 +59,7 @@ export const deleteAsset = async (
 		}
 
 		await asset.destroy({
-			audit: { changed_by: 1, action: ChangeType.DELETE },
+			audit: { changed_by: user_id, action: ChangeType.DELETE },
 		} as any);
 		res.status(200).json({ message: "Asset deleted successfully" });
 	} catch (error) {
@@ -72,12 +69,13 @@ export const deleteAsset = async (
 };
 
 export const relocateAsset = async (
-	req: express.Request,
-	res: express.Response
+	req: AuthenticatedRequest,
+	res: Response
 ) => {
 	try {
 		const { id } = req.params;
 		const { location_id, change_reason } = req.body;
+		const { user_id } = req;
 
 		const errors = validationResult(req);
 		if (!errors.isEmpty()) {
@@ -100,7 +98,7 @@ export const relocateAsset = async (
 		asset.set("location_id", location_id);
 		await asset.save({
 			audit: {
-				changed_by: 1,
+				changed_by: user_id,
 				action: ChangeType.UPDATE_LOCATION,
 				reason: change_reason,
 			},
@@ -117,12 +115,13 @@ export const relocateAsset = async (
 };
 
 export const updateAssetCost = async (
-	req: express.Request,
-	res: express.Response
+	req: AuthenticatedRequest,
+	res: Response
 ) => {
 	try {
 		const { id } = req.params;
 		const { cost, change_reason } = req.body;
+		const { user_id } = req;
 
 		const errors = validationResult(req);
 		if (!errors.isEmpty()) {
@@ -145,7 +144,7 @@ export const updateAssetCost = async (
 		asset.set("cost", cost);
 		await asset.save({
 			audit: {
-				changed_by: 1,
+				changed_by: user_id,
 				action: ChangeType.UPDATE_COST,
 				reason: change_reason,
 			},
@@ -162,12 +161,13 @@ export const updateAssetCost = async (
 };
 
 export const updateAssetStatus = async (
-	req: express.Request,
-	res: express.Response
+	req: AuthenticatedRequest,
+	res: Response
 ) => {
 	try {
 		const { id } = req.params;
 		const { status, change_reason } = req.body;
+		const { user_id } = req;
 
 		const errors = validationResult(req);
 		if (!errors.isEmpty()) {
@@ -190,7 +190,7 @@ export const updateAssetStatus = async (
 		asset.set("status", status);
 		await asset.save({
 			audit: {
-				changed_by: 1,
+				changed_by: user_id,
 				action: ChangeType.UPDATE_STATUS,
 				reason: change_reason,
 			},
