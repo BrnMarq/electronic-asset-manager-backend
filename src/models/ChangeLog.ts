@@ -9,9 +9,17 @@ import {
 } from "sequelize-typescript";
 
 export enum ChangeType {
-	UPDATE = "update",
+	UPDATE_COST = "update cost",
+	UPDATE_STATUS = "update status",
+	UPDATE_LOCATION = "update location",
 	DELETE = "delete",
 }
+
+export type ChangeLogMetadata = {
+	changed_by: number;
+	action: ChangeType;
+	reason?: string;
+};
 
 @Table({
 	tableName: "change_log",

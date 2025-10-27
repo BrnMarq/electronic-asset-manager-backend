@@ -14,23 +14,37 @@ import {
 import { Type } from "../models/Type";
 import { User } from "../models/User";
 import { Location } from "../models/Location";
-import { ChangeLog, ChangeType } from "./ChangeLog";
+import { ChangeLog, ChangeLogMetadata } from "./ChangeLog";
 
-const logChanges = async (action: ChangeType, asset: Asset) => {
-	const instance = asset.toJSON();
+export enum AssetStatus {
+	DECOMISSIONED = "decommissioned",
+	ACTIVE = "active",
+	INACTIVE = "inactive",
+}
+
+const logChanges = async (asset: Asset, options: ChangeLogMetadata) => {
+	if (!options?.action || !options?.changed_by)
+		throw new Error("Action and changed_by are required on audit options.");
+
+	const current = asset.toJSON() as any;
+	const prev = (key: string) =>
+		typeof asset.previous === "function"
+			? asset.previous(key) ?? current[key]
+			: current[key];
 	await ChangeLog.create({
-		asset_id: instance.id,
-		user_id: instance.created_by,
-		change_type: action,
-		old_name: instance.name,
-		old_serial_number: instance.serial_number,
-		old_type_id: instance.type_id,
-		old_description: instance.description,
-		old_responsible_id: instance.responsible_id,
-		old_location_id: instance.location_id,
-		old_cost: instance.cost,
-		old_status: instance.status,
-		old_acquisition_date: instance.acquisition_date,
+		asset_id: current.id,
+		user_id: options.changed_by,
+		change_type: options.action,
+		change_reason: options?.reason ?? "No reason provided",
+		old_name: prev("name"),
+		old_serial_number: prev("serial_number"),
+		old_type_id: prev("type_id"),
+		old_description: prev("description"),
+		old_responsible_id: prev("responsible_id"),
+		old_location_id: prev("location_id"),
+		old_cost: prev("cost"),
+		old_status: prev("status"),
+		old_acquisition_date: prev("acquisition_date"),
 	});
 };
 
@@ -72,7 +86,7 @@ export class Asset extends Model {
 	@Column(DataType.INTEGER)
 	responsible_id!: number;
 
-	@BelongsTo(() => User, 'responsible_id')
+	@BelongsTo(() => User, "responsible_id")
 	responsible!: User;
 
 	@AllowNull(false)
@@ -84,7 +98,11 @@ export class Asset extends Model {
 	location!: Location;
 
 	@AllowNull(false)
-	@Column(DataType.STRING)
+	@Column({
+		type: DataType.ENUM,
+		values: Object.values(AssetStatus),
+		defaultValue: AssetStatus.ACTIVE,
+	})
 	status!: string;
 
 	@AllowNull(false)
@@ -100,17 +118,15 @@ export class Asset extends Model {
 	@Column(DataType.INTEGER)
 	created_by!: number;
 
-	@BelongsTo(() => User, 'created_by')
+	@BelongsTo(() => User, "created_by")
 	creator!: User;
 
 	@BeforeUpdate
-	static async logUpdate(instance: Asset) {
-		await logChanges(ChangeType.UPDATE, instance);
-	}
-
 	@BeforeDestroy
-	static async logDelete(instance: Asset) {
-		await logChanges(ChangeType.DELETE, instance);
+	static async logUpdate(instance: Asset, options: any) {
+		if (!options?.audit)
+			throw new Error("Audit options are required on update or delete.");
+		await logChanges(instance, options.audit);
 	}
 }
 

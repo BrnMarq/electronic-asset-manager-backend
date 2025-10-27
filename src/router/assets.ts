@@ -1,12 +1,18 @@
 import express from "express";
 
-import { createAsset, deleteAsset, relocateAsset, updateAssetCost, updateAssetStatus } from "../controllers/assets";
+import {
+	createAsset,
+	deleteAsset,
+	relocateAsset,
+	updateAssetCost,
+	updateAssetStatus,
+} from "../controllers/assets";
 import {
 	createAssetValidator,
 	deleteAssetValidator,
 	relocateAssetValidator,
 	updateCostValidator,
-	updateStatusValidator
+	updateStatusValidator,
 } from "../validators/assets";
 
 export default (router: express.Router) => {
@@ -19,5 +25,4 @@ export default (router: express.Router) => {
 	router.patch("/assets/:id/relocate", relocateAssetValidator, relocateAsset);
 	router.patch("/assets/:id/cost", updateCostValidator, updateAssetCost);
 	router.patch("/assets/:id/status", updateStatusValidator, updateAssetStatus);
-
 };
