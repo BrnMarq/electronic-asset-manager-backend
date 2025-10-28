@@ -1,6 +1,7 @@
 import express from "express";
 
 import {
+	getAssets,
 	createAsset,
 	deleteAsset,
 	updateAsset,
@@ -14,10 +15,7 @@ import {
 import { authenticatedMiddleware } from "../middlewares/authentication";
 
 export default (router: express.Router) => {
-	router.get("/assets", (_, res) => {
-		res.status(200).send("OK");
-	});
-
+	router.get("/assets", getAssets);
 	router.get(
 		"/assets/create-info",
 		authenticatedMiddleware,

@@ -7,6 +7,35 @@ import Type from "../models/Type";
 import User from "../models/User";
 import { AuthenticatedRequest } from "../middlewares/authentication";
 
+export const getAssets = async (_: AuthenticatedRequest, res: Response) => {
+	try {
+		const assets = await Asset.findAll({
+			include: [
+				{
+					model: Location,
+					attributes: ["id", "name"],
+				},
+				{
+					model: Type,
+					attributes: ["id", "name"],
+				},
+				{
+					model: User,
+					as: "responsible",
+					attributes: ["id", "first_name", "last_name"],
+				},
+			],
+			attributes: {
+				exclude: ["createdAt", "updatedAt"],
+			},
+		});
+		res.status(200).json(assets);
+	} catch (error) {
+		console.error(error);
+		return res.status(500).json({ message: "Internal server error" });
+	}
+};
+
 export const getCreateAssetInfo = async (
 	_: AuthenticatedRequest,
 	res: Response
