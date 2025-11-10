@@ -16,6 +16,7 @@ import {
 	modelName: "Type",
 	timestamps: true,
 	updatedAt: false,
+	paranoid: true
 })
 export class Type extends Model {
 	@PrimaryKey

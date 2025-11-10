@@ -13,6 +13,7 @@ import {
 	modelName: "Location",
 	timestamps: true,
 	updatedAt: false,
+	paranoid: true,
 })
 export class Location extends Model {
 	@PrimaryKey
