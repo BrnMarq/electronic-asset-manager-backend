@@ -8,6 +8,7 @@ import {
 	getCreateAssetInfo,
 } from "../controllers/assets";
 import {
+	getAssetsValidator,
 	createAssetValidator,
 	deleteAssetValidator,
 	updateAssetValidator,
@@ -15,7 +16,7 @@ import {
 import { authenticatedMiddleware } from "../middlewares/authentication";
 
 export default (router: express.Router) => {
-	router.get("/assets", getAssets);
+	router.get("/assets", authenticatedMiddleware, getAssetsValidator, getAssets);
 	router.get(
 		"/assets/create-info",
 		authenticatedMiddleware,

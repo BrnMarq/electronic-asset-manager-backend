@@ -11,6 +11,17 @@ const makeOptional: (schema: ParamSchema) => ParamSchema = (
 	optional: { options: { nullable: true } },
 });
 
+const setIn: (
+	schema: ParamSchema,
+	locations: ParamSchema["in"]
+) => ParamSchema = (
+	schema: ParamSchema,
+	locations: ParamSchema["in"] = ["query"]
+): ParamSchema => ({
+	...schema,
+	in: locations,
+});
+
 const id: ParamSchema = {
 	in: ["params"],
 	isInt: {
@@ -139,6 +150,32 @@ const change_reason: ParamSchema = {
 	optional: { options: { nullable: true } },
 };
 
+export const getAssetsValidator = checkSchema({
+	name: makeOptional(setIn(name, ["query"])),
+	serial_number: makeOptional(setIn(serial_number, ["query"])),
+	type_id: makeOptional(setIn(type_id, ["query"])),
+	description: makeOptional(setIn(description, ["query"])),
+	responsible_id: makeOptional(setIn(responsible_id, ["query"])),
+	location_id: makeOptional(setIn(location_id, ["query"])),
+	status: makeOptional(setIn(status, ["query"])),
+	cost: makeOptional(setIn(cost, ["query"])),
+	acquisition_date: makeOptional(setIn(acquisition_date, ["query"])),
+	page: {
+		in: ["query"],
+		isInt: {
+			errorMessage: "Page must be an integer.",
+		},
+		optional: { options: { nullable: true } },
+	},
+	limit: {
+		in: ["query"],
+		isInt: {
+			errorMessage: "Limit must be an integer.",
+		},
+		optional: { options: { nullable: true } },
+	},
+});
+
 export const createAssetValidator = checkSchema({
 	name,
 	serial_number,
@@ -153,6 +190,7 @@ export const createAssetValidator = checkSchema({
 
 export const deleteAssetValidator = checkSchema({
 	id,
+	change_reason,
 });
 
 export const updateAssetValidator = checkSchema({
@@ -165,4 +203,5 @@ export const updateAssetValidator = checkSchema({
 	status: makeOptional(status),
 	cost: makeOptional(cost),
 	acquisition_date: makeOptional(acquisition_date),
+	change_reason,
 });

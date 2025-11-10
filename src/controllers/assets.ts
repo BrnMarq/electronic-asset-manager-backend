@@ -1,5 +1,6 @@
 import { Response } from "express";
 import { validationResult } from "express-validator";
+import { Op } from "sequelize";
 import Asset from "../models/Asset";
 import { ChangeType } from "../models/ChangeLog";
 import Location from "../models/Location";
@@ -7,29 +8,71 @@ import Type from "../models/Type";
 import User from "../models/User";
 import { AuthenticatedRequest } from "../middlewares/authentication";
 
-export const getAssets = async (_: AuthenticatedRequest, res: Response) => {
+const includeInAsset = {
+	include: [
+		{
+			model: Location,
+			attributes: ["id", "name"],
+		},
+		{
+			model: Type,
+			attributes: ["id", "name"],
+		},
+		{
+			model: User,
+			as: "responsible",
+			attributes: ["id", "first_name", "last_name"],
+		},
+	],
+	attributes: {
+		exclude: ["createdAt", "deletedAt"],
+	},
+};
+
+export const getAssets = async (req: AuthenticatedRequest, res: Response) => {
 	try {
-		const assets = await Asset.findAll({
-			include: [
-				{
-					model: Location,
-					attributes: ["id", "name"],
-				},
-				{
-					model: Type,
-					attributes: ["id", "name"],
-				},
-				{
-					model: User,
-					as: "responsible",
-					attributes: ["id", "first_name", "last_name"],
-				},
-			],
-			attributes: {
-				exclude: ["createdAt", "updatedAt"],
+		const {
+			name,
+			serial_number,
+			type_id,
+			description,
+			responsible_id,
+			location_id,
+			status,
+			cost,
+			acquisition_date,
+			page,
+			limit,
+		} = req.query;
+
+		const pageNumber = Number(page) || 1;
+		const limitNumber = Number(limit) || 10;
+
+		const errors = validationResult(req);
+		if (!errors.isEmpty()) {
+			return res.status(400).json({ errors: errors.array() });
+		}
+
+		const { count, rows: assets } = await Asset.findAndCountAll({
+			where: {
+				...(name && { name: { [Op.like]: `%${name}%` } }),
+				...(serial_number && {
+					serial_number: { [Op.like]: `%${serial_number}%` },
+				}),
+				...(type_id && { type_id }),
+				...(description && { description: { [Op.like]: `%${description}%` } }),
+				...(responsible_id && { responsible_id }),
+				...(location_id && { location_id }),
+				...(status && { status }),
+				...(cost && { cost }),
+				...(acquisition_date && { acquisition_date }),
 			},
+			limit: limitNumber,
+			offset: (pageNumber - 1) * limitNumber,
+			order: [["id", "DESC"]],
+			...includeInAsset,
 		});
-		res.status(200).json(assets);
+		res.status(200).json({ assets, total: count });
 	} catch (error) {
 		console.error(error);
 		return res.status(500).json({ message: "Internal server error" });
@@ -80,7 +123,7 @@ export const createAsset = async (req: AuthenticatedRequest, res: Response) => {
 			return res.status(400).json({ errors: errors.array() });
 		}
 
-		const asset = await Asset.create({
+		const created_asset = await Asset.create({
 			name,
 			serial_number,
 			type_id,
@@ -92,6 +135,7 @@ export const createAsset = async (req: AuthenticatedRequest, res: Response) => {
 			acquisition_date,
 			created_by: user_id,
 		});
+		const asset = await Asset.findByPk(created_asset.id, includeInAsset);
 		res.status(201).json(asset.toJSON());
 	} catch (error) {
 		res.status(500).json({ message: "Internal server error" });
@@ -146,7 +190,7 @@ export const updateAsset = async (req: AuthenticatedRequest, res: Response) => {
 			return res.status(400).json({ errors: errors.array() });
 		}
 
-		const asset = await Asset.findByPk(id);
+		const asset = await Asset.findByPk(id, includeInAsset);
 		if (!asset) {
 			return res.status(404).json({ message: "Asset not found" });
 		}
