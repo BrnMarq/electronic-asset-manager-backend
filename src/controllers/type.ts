@@ -73,3 +73,24 @@ export const updateType = async (req: Request, res: Response) => {
 		res.status(500).json({ message: "Internal server error" });
 	}
 };
+
+export const deleteType = async (req: Request, res: Response) => {
+	try {
+		const { id } = req.params;
+
+		const errors = validationResult(req);
+		if (!errors.isEmpty()) {
+			return res.status(400).json({ errors: errors.array() });
+		}
+
+		const type = await Type.findByPk(id);
+		if (!type) {
+			return res.status(404).json({ message: "Type not found" });
+		}
+		await type.destroy();
+		res.status(204).send();
+	} catch (error) {
+		console.error(error);
+		res.status(500).json({ message: "Internal server error" });
+	}
+};

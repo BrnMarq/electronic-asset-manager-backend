@@ -4,11 +4,13 @@ import {
 	getTypeById,
 	createType,
 	updateType,
+	deleteType,
 } from "../controllers/type";
 import {
 	getTypeValidator,
 	createTypeValidator,
 	updateTypeValidator,
+	deleteTypeValidator,
 } from "../validators/type";
 import { authenticatedMiddleware } from "../middlewares/authentication";
 
@@ -31,5 +33,11 @@ export default (router: express.Router) => {
 		authenticatedMiddleware,
 		updateTypeValidator,
 		updateType
+	);
+	router.delete(
+		"/types/:id",
+		authenticatedMiddleware,
+		deleteTypeValidator,
+		deleteType
 	);
 };
