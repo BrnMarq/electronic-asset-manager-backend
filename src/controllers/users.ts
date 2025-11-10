@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { validationResult } from "express-validator";
 import { User } from "../models/User";
 
-export const getUsers = async (req: Request, res: Response) => {
+export const getUsers = async (_: Request, res: Response) => {
 	try {
 		const users = await User.findAll();
 		res.status(200).json(users);
@@ -15,6 +15,12 @@ export const getUsers = async (req: Request, res: Response) => {
 export const getUserById = async (req: Request, res: Response) => {
 	try {
 		const { id } = req.params;
+
+		const errors = validationResult(req);
+		if (!errors.isEmpty()) {
+			return res.status(400).json({ errors: errors.array() });
+		}
+
 		const user = await User.findByPk(id);
 		if (!user) {
 			return res.status(404).json({ message: "User not found" });
@@ -58,6 +64,12 @@ export const updateUser = async (req: Request, res: Response) => {
 export const deleteUser = async (req: Request, res: Response) => {
 	try {
 		const { id } = req.params;
+
+		const errors = validationResult(req);
+		if (!errors.isEmpty()) {
+			return res.status(400).json({ errors: errors.array() });
+		}
+
 		const user = await User.findByPk(id);
 		if (!user) {
 			return res.status(404).json({ message: "User not found" });
