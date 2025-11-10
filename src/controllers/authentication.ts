@@ -5,33 +5,6 @@ import { random, hashPassword } from "../utils/hasher";
 import { User } from "../models/User";
 import config from "../config";
 
-export const register = async (req: express.Request, res: express.Response) => {
-	try {
-		const { username, email, password, first_name, last_name, role_id } =
-			req.body;
-
-		const errors = validationResult(req);
-		if (!errors.isEmpty()) {
-			return res.status(400).json({ errors: errors.array() });
-		}
-
-		const salt = random();
-		const user = await User.create({
-			username,
-			email,
-			first_name,
-			last_name,
-			role_id,
-			salt,
-			hashed_password: hashPassword(salt, password),
-		});
-		res.status(201).json(user.toJSON());
-	} catch (error) {
-		res.status(500).json({ message: "Internal server error" });
-		console.error(error);
-	}
-};
-
 export const login = async (req: express.Request, res: express.Response) => {
 	try {
 		const { username, password } = req.body;

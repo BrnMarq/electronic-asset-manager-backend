@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { validationResult } from "express-validator";
 import { User } from "../models/User";
+import { random, hashPassword } from "../utils/hasher";
 
 export const getUsers = async (_: Request, res: Response) => {
 	try {
@@ -29,6 +30,33 @@ export const getUserById = async (req: Request, res: Response) => {
 	} catch (error) {
 		console.error(error);
 		res.status(500).json({ message: "Internal server error" });
+	}
+};
+
+export const createUser = async (req: Request, res: Response) => {
+	try {
+		const { username, email, password, first_name, last_name, role_id } =
+			req.body;
+
+		const errors = validationResult(req);
+		if (!errors.isEmpty()) {
+			return res.status(400).json({ errors: errors.array() });
+		}
+
+		const salt = random();
+		const user = await User.create({
+			username,
+			email,
+			first_name,
+			last_name,
+			role_id,
+			salt,
+			hashed_password: hashPassword(salt, password),
+		});
+		res.status(201).json(user.toJSON());
+	} catch (error) {
+		res.status(500).json({ message: "Internal server error" });
+		console.error(error);
 	}
 };
 

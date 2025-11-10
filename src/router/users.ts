@@ -2,11 +2,13 @@ import express from "express";
 import {
 	getUsers,
 	getUserById,
+	createUser,
 	updateUser,
 	deleteUser,
 } from "../controllers/users";
 import {
 	getUserValidator,
+	createUserValidator,
 	updateUserValidator,
 	deleteUserValidator,
 } from "../validators/users";
@@ -19,6 +21,12 @@ export default (router: express.Router) => {
 		authenticatedMiddleware,
 		getUserValidator,
 		getUserById
+	);
+	router.post(
+		"/users",
+		authenticatedMiddleware,
+		createUserValidator,
+		createUser
 	);
 	router.patch(
 		"/users/:id",
