@@ -7,6 +7,7 @@ import Location from "../models/Location";
 import Type from "../models/Type";
 import User from "../models/User";
 import { AuthenticatedRequest } from "../middlewares/authentication";
+import * as Excel from 'exceljs';
 
 const includeInAsset = {
 	include: [
@@ -170,7 +171,7 @@ export const deleteAsset = async (req: AuthenticatedRequest, res: Response) => {
 
 export const updateAsset = async (req: AuthenticatedRequest, res: Response) => {
 	try {
-		const { id } = req.params;
+		const {id} = req.params;
 		const {
 			name,
 			serial_number,
@@ -183,8 +184,8 @@ export const updateAsset = async (req: AuthenticatedRequest, res: Response) => {
 			acquisition_date,
 			change_reason,
 		} = req.body;
-		const { user_id } = req;
-
+		const {user_id} = req;
+		
 		const errors = validationResult(req);
 		if (!errors.isEmpty()) {
 			return res.status(400).json({ errors: errors.array() });
@@ -235,5 +236,118 @@ export const updateAsset = async (req: AuthenticatedRequest, res: Response) => {
 	} catch (error) {
 		res.status(500).json({ message: "Internal server error" });
 		console.error(error);
+	}
+};
+
+export const exportAssets = async (req: AuthenticatedRequest, res: Response) => {
+	try {
+		const {
+			name,
+			serial_number,
+			type_id,
+			description,
+			responsible_id,
+			location_id,
+			status,
+			cost,
+			acquisition_date,
+			//page,
+			//limit,
+		} = req.query;
+
+		//const pageNumber = Number(page) || 1;
+		//const limitNumber = Number(limit) || 10;
+
+		const errors = validationResult(req);
+		if (!errors.isEmpty()) {
+			return res.status(400).json({ errors: errors.array() });
+		}
+
+		const includeInExcel = [
+			{
+				model: Location,
+				as: "location",
+				attributes: ["name"],
+			},
+			{
+				model: Type,
+				as: "type",
+				attributes: ["name"],
+			},
+			{
+				model: User,
+				as: "responsible",
+				attributes: ["first_name", "last_name"],
+			},
+		];
+
+		const assets = await Asset.findAll({
+			attributes:[
+				'id',
+				'name',
+				'serial_number',
+				'description',
+				'status',
+				'cost',
+				'acquisition_date',
+			],
+			where: {
+				...(name && { name: { [Op.like]: `%${name}%` } }),
+				...(serial_number && {
+					serial_number: { [Op.like]: `%${serial_number}%` },
+				}),
+				...(type_id && { type_id }),
+				...(description && { description: { [Op.like]: `%${description}%` } }),
+				...(responsible_id && { responsible_id }),
+				...(location_id && { location_id }),
+				...(status && { status }),
+				...(cost && { cost }),
+				...(acquisition_date && { acquisition_date }),
+			},
+			//limit: limitNumber,
+			//offset: (pageNumber - 1) * limitNumber,
+			order: [["id", "ASC"]],
+			include: includeInExcel,
+		});	
+	
+		const workbook = new Excel.Workbook();
+		const worksheet = workbook.addWorksheet('Inventario de Activos');
+
+		worksheet.columns = [
+    		{ header: 'ID', key: 'id' },
+    		{ header: 'Nombre', key: 'name' },
+    		{ header: 'N° de Serie', key: 'serial_number' },
+    		{ header: 'Tipo', key: 'type' },
+    		{ header: 'Descripción', key: 'description' },
+    		{ header: 'Responsable', key: 'responsible' },
+    		{ header: 'Ubicación', key: 'location' },
+    		{ header: 'Estado', key: 'status' },
+    		{ header: 'Costo', key: 'cost' },
+    		{ header: 'Fecha de Adquisición', key: 'acquisition_date' },
+		];
+
+		worksheet.addRows(assets.map(asset => {
+    		const assetJson = asset.toJSON();
+    		return {
+        		...assetJson,
+        
+        		type: assetJson.type ? assetJson.type.name : null,
+        		location: assetJson.location ? assetJson.location.name : null,
+        		responsible: assetJson.responsible ? `${assetJson.responsible.first_name} ${assetJson.responsible.last_name}` : null,
+    		};
+		}));
+
+		const buffer = await workbook.xlsx.writeBuffer();
+
+		res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+		res.setHeader(
+    		'Content-Disposition', 
+   		 	`attachment; filename=Inventario_Activos_${Date.now()}.xlsx`
+		);
+		return res.status(200).send(buffer);
+
+	} catch (error) {
+		console.error(error);
+		return res.status(500).json({ message: "Internal server error" });
 	}
 };
