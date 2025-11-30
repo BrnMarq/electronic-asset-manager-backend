@@ -13,30 +13,40 @@ import {
 	deleteUserValidator,
 } from "../validators/users";
 import { authenticatedMiddleware } from "../middlewares/authentication";
+import { roleMiddleware } from "@/middlewares/authorization";
 
 export default (router: express.Router) => {
-	router.get("/users", authenticatedMiddleware, getUsers);
+	router.get(
+		"/users",
+		authenticatedMiddleware,
+		roleMiddleware("admin"),
+		getUsers
+	);
 	router.get(
 		"/users/:id",
 		authenticatedMiddleware,
+		roleMiddleware("admin"),
 		getUserValidator,
 		getUserById
 	);
 	router.post(
 		"/users",
 		authenticatedMiddleware,
+		roleMiddleware("admin"),
 		createUserValidator,
 		createUser
 	);
 	router.patch(
 		"/users/:id",
 		authenticatedMiddleware,
+		roleMiddleware("admin"),
 		updateUserValidator,
 		updateUser
 	);
 	router.delete(
 		"/users/:id",
 		authenticatedMiddleware,
+		roleMiddleware("admin"),
 		deleteUserValidator,
 		deleteUser
 	);

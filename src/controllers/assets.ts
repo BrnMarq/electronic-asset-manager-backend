@@ -139,7 +139,7 @@ export const createAsset = async (req: AuthenticatedRequest, res: Response) => {
 			cost,
 			acquisition_date,
 		} = req.body;
-		const { user_id } = req;
+		const { user } = req;
 
 		const errors = validationResult(req);
 		if (!errors.isEmpty()) {
@@ -156,7 +156,7 @@ export const createAsset = async (req: AuthenticatedRequest, res: Response) => {
 			status,
 			cost,
 			acquisition_date,
-			created_by: user_id,
+			created_by: user.id,
 		});
 		const asset = await Asset.findByPk(created_asset.id, includeInAsset);
 		res.status(201).json(asset.toJSON());
@@ -169,7 +169,7 @@ export const createAsset = async (req: AuthenticatedRequest, res: Response) => {
 export const deleteAsset = async (req: AuthenticatedRequest, res: Response) => {
 	try {
 		const { id } = req.params;
-		const { user_id } = req;
+		const { user } = req;
 
 		const errors = validationResult(req);
 		if (!errors.isEmpty()) {
@@ -182,7 +182,7 @@ export const deleteAsset = async (req: AuthenticatedRequest, res: Response) => {
 		}
 
 		await asset.destroy({
-			audit: { changed_by: user_id, action: ChangeType.DELETE },
+			audit: { changed_by: user.id, action: ChangeType.DELETE },
 		} as any);
 		res.status(200).json({ message: "Asset deleted successfully" });
 	} catch (error) {
@@ -206,7 +206,7 @@ export const updateAsset = async (req: AuthenticatedRequest, res: Response) => {
 			acquisition_date,
 			change_reason,
 		} = req.body;
-		const { user_id } = req;
+		const { user } = req;
 
 		const errors = validationResult(req);
 		if (!errors.isEmpty()) {
@@ -236,6 +236,18 @@ export const updateAsset = async (req: AuthenticatedRequest, res: Response) => {
 			}
 		}
 
+		if ("location_id" in newAssetData && user.role !== "manager") {
+			return res.status(403).json({
+				message: `Acceso Denegado. Rol '${user.role}' no autorizado para modificar la localización.`,
+			});
+		}
+
+		if ("status" in newAssetData && user.role !== "admin") {
+			return res.status(403).json({
+				message: `Acceso Denegado. Rol '${user.role}' no autorizado para modificar el estado.`,
+			});
+		}
+
 		asset.set(newAssetData);
 
 		if (!asset.changed()) {
@@ -246,7 +258,7 @@ export const updateAsset = async (req: AuthenticatedRequest, res: Response) => {
 
 		await asset.save({
 			audit: {
-				changed_by: user_id,
+				changed_by: user.id,
 				action: ChangeType.UPDATE,
 				reason: change_reason,
 			},
