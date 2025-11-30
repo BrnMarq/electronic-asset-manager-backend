@@ -113,7 +113,7 @@ export const getAssetChangelog = async (
 			order: [["createdAt", "DESC"]],
 			include: [
 				{
-					model: User,
+					model: User, as: "user",
 					attributes: ["id", "first_name", "last_name"],
 				},
 			],

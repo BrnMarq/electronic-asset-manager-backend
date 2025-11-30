@@ -14,7 +14,7 @@ import {
 import { Type } from "../models/Type";
 import { User } from "../models/User";
 import { Location } from "../models/Location";
-import { ChangeLog, ChangeLogMetadata } from "./ChangeLog";
+import { ChangeLog, ChangeLogMetadata, ChangeType } from "./ChangeLog";
 
 export enum AssetStatus {
 	DECOMISSIONED = "decommissioned",
@@ -27,19 +27,42 @@ const logChanges = async (asset: Asset, options: ChangeLogMetadata) => {
 		throw new Error("Action and changed_by are required on audit options.");
 
 	const current = asset.toJSON() as any;
+	
 	const prev = (key: string) =>
 		typeof asset.previous === "function"
 			? asset.previous(key) ?? current[key]
 			: current[key];
+
+	let changesList: any[] = [];
+	
+	if (options.action === ChangeType.UPDATE) {
+		const changedFields = asset.changed(); 
+		
+		if (changedFields && Array.isArray(changedFields)) {
+			changesList = changedFields
+				.filter(field => !['updatedAt', 'audit'].includes(field))
+				.map(field => {
+					return {
+						field: field,
+						oldValue: asset.previous(field),
+						newValue: asset.getDataValue(field)
+					};
+				});
+		}
+	}
+
 	await ChangeLog.create({
 		asset_id: current.id,
 		user_id: options.changed_by,
 		change_type: options.action,
 		change_reason: options?.reason ?? "No reason provided",
+		
+		changes: changesList,
+
 		old_name: prev("name"),
 		old_serial_number: prev("serial_number"),
 		old_type_id: prev("type_id"),
-		old_description: prev("description"),
+		old_description: prev("description") || "",
 		old_responsible_id: prev("responsible_id"),
 		old_location_id: prev("location_id"),
 		old_cost: prev("cost"),

@@ -6,7 +6,11 @@ import {
 	PrimaryKey,
 	AutoIncrement,
 	AllowNull,
+	ForeignKey,
+	BelongsTo,
 } from "sequelize-typescript";
+import { User } from "./User";
+import { Asset } from "./Asset";
 
 export enum ChangeType {
 	UPDATE = "update",
@@ -32,12 +36,20 @@ export class ChangeLog extends Model {
 	id!: number;
 
 	@AllowNull(false)
+	@ForeignKey(() => Asset)
 	@Column(DataType.INTEGER)
 	asset_id!: number;
 
+	@BelongsTo(() => Asset)
+	asset!: Asset;
+
 	@AllowNull(false)
+	@ForeignKey(() => User)
 	@Column(DataType.INTEGER)
 	user_id!: number;
+
+	@BelongsTo(() => User)
+	user!: User;
 
 	@AllowNull(false)
 	@Column({
@@ -49,6 +61,10 @@ export class ChangeLog extends Model {
 	@AllowNull(true)
 	@Column(DataType.STRING)
 	change_reason?: string;
+
+	@AllowNull(true)
+	@Column(DataType.JSON)
+	changes?: object[]; 
 
 	@AllowNull(false)
 	@Column(DataType.STRING)
