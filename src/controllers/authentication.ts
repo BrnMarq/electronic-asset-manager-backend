@@ -1,8 +1,9 @@
 import express from "express";
 import { validationResult } from "express-validator";
 import jwt from "jsonwebtoken";
-import { random, hashPassword } from "../utils/hasher";
+import { hashPassword } from "../utils/hasher";
 import { User } from "../models/User";
+import Role from "../models/Role";
 import config from "../config";
 
 export const login = async (req: express.Request, res: express.Response) => {
@@ -14,7 +15,10 @@ export const login = async (req: express.Request, res: express.Response) => {
 			return res.status(400).json({ errors: errors.array() });
 		}
 
-		const db_user = await User.findOne({ where: { username } });
+		const db_user = await User.findOne({
+			where: { username },
+			include: [Role],
+		});
 		if (!db_user) {
 			return res.status(400).json({ message: "Invalid credentials" });
 		}
@@ -27,8 +31,11 @@ export const login = async (req: express.Request, res: express.Response) => {
 
 		const responseUser = {
 			id: user.id,
+			first_name: user.first_name,
+			last_name: user.last_name,
 			username: user.username,
 			email: user.email,
+			role: user.role.name,
 		};
 
 		const token = jwt.sign(responseUser, config.jwtSecret, {
