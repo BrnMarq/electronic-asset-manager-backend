@@ -1,11 +1,21 @@
 import { Request, Response } from "express";
 import { validationResult } from "express-validator";
 import { User } from "../models/User";
+import Role from "../models/Role";
 import { random, hashPassword } from "../utils/hasher";
+
+const userInclude = {
+	include: [
+		{
+			model: Role,
+			attributes: ["id", "name"],
+		},
+	],
+};
 
 export const getUsers = async (_: Request, res: Response) => {
 	try {
-		const users = await User.findAll();
+		const users = await User.findAll(userInclude);
 		res.status(200).json(users);
 	} catch (error) {
 		console.error(error);
@@ -53,6 +63,7 @@ export const createUser = async (req: Request, res: Response) => {
 			salt,
 			hashed_password: hashPassword(salt, password),
 		});
+		await user.reload(userInclude);
 		res.status(201).json(user.toJSON());
 	} catch (error) {
 		res.status(500).json({ message: "Internal server error" });
@@ -70,7 +81,7 @@ export const updateUser = async (req: Request, res: Response) => {
 			return res.status(400).json({ errors: errors.array() });
 		}
 
-		const user = await User.findByPk(id);
+		const user = await User.findByPk(id, userInclude);
 		if (!user) {
 			return res.status(404).json({ message: "User not found" });
 		}
@@ -82,6 +93,9 @@ export const updateUser = async (req: Request, res: Response) => {
 		user.role_id = role_id ?? user.role_id;
 
 		await user.save();
+
+		await user.reload(userInclude);
+
 		res.status(200).json(user);
 	} catch (error) {
 		console.error(error);
