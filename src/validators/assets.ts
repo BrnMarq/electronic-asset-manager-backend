@@ -176,6 +176,10 @@ export const getAssetsValidator = checkSchema({
 	},
 });
 
+export const getAssetChangelogValidator = checkSchema({
+	id,
+});
+
 export const createAssetValidator = checkSchema({
 	name,
 	serial_number,

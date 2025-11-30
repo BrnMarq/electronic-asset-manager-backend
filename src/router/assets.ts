@@ -5,8 +5,8 @@ import {
 	createAsset,
 	deleteAsset,
 	updateAsset,
-	getCreateAssetInfo,
 	exportAssets,
+	getAssetChangelog,
 } from "../controllers/assets";
 import {
 	getAssetsValidator,
@@ -17,16 +17,12 @@ import {
 import { authenticatedMiddleware } from "../middlewares/authentication";
 
 export default (router: express.Router) => {
+	router.get("/assets", authenticatedMiddleware, getAssetsValidator, getAssets);
 	router.get(
-		"/assets",
+		"/assets/:id",
 		authenticatedMiddleware,
 		getAssetsValidator,
-		getAssets
-		);
-	router.get(
-		"/assets/create-info",
-		authenticatedMiddleware,
-		getCreateAssetInfo
+		getAssetChangelog
 	);
 	router.get(
 		"/assets/export",

@@ -2,7 +2,7 @@ import { Response } from "express";
 import { validationResult } from "express-validator";
 import { Op } from "sequelize";
 import Asset from "../models/Asset";
-import { ChangeType } from "../models/ChangeLog";
+import Changelog, { ChangeLog, ChangeType } from "../models/ChangeLog";
 import Location from "../models/Location";
 import Type from "../models/Type";
 import User from "../models/User";
@@ -73,34 +73,50 @@ export const getAssets = async (req: AuthenticatedRequest, res: Response) => {
 			order: [["id", "DESC"]],
 			...includeInAsset,
 		});
-		res.status(200).json({ assets, total: count });
+		const activeAssets = await Asset.count({
+			where: { status: "active" },
+		});
+		const inactiveAssets = await Asset.count({
+			where: { status: "inactive" },
+		});
+		const decommissionedAssets = await Asset.count({
+			where: { status: "decommissioned" },
+		});
+
+		res.status(200).json({
+			assets,
+			total: count,
+			activeAssets,
+			inactiveAssets,
+			decommissionedAssets,
+		});
 	} catch (error) {
 		console.error(error);
 		return res.status(500).json({ message: "Internal server error" });
 	}
 };
 
-export const getCreateAssetInfo = async (
-	_: AuthenticatedRequest,
+export const getAssetChangelog = async (
+	req: AuthenticatedRequest,
 	res: Response
 ) => {
 	try {
-		const locations = await Location.findAll({
-			attributes: {
-				exclude: ["createdAt"],
-			},
-		});
-		const types = await Type.findAll({
-			attributes: ["id", "name", "category", "description"],
-		});
-		const users = await User.findAll({
-			attributes: ["id", "username", "email", "first_name", "last_name"],
+		const { id } = req.params;
+
+		const errors = validationResult(req);
+		if (!errors.isEmpty()) {
+			return res.status(400).json({ errors: errors.array() });
+		}
+
+		const changelog = await ChangeLog.findAll({
+			where: { asset_id: id },
+			order: [["createdAt", "DESC"]],
 		});
 
-		res.status(200).json({ locations, types, users });
+		res.status(200).json({ changelog });
 	} catch (error) {
+		res.status(500).json({ message: "Internal server error" });
 		console.error(error);
-		return res.status(500).json({ message: "Internal server error" });
 	}
 };
 
