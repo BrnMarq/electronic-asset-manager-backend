@@ -111,6 +111,12 @@ export const getAssetChangelog = async (
 		const changelog = await ChangeLog.findAll({
 			where: { asset_id: id },
 			order: [["createdAt", "DESC"]],
+			include: [
+				{
+					model: User,
+					attributes: ["id", "first_name", "last_name"],
+				},
+			],
 		});
 
 		res.status(200).json({ changelog });
