@@ -13,6 +13,7 @@ import {
 	deleteTypeValidator,
 } from "../validators/type";
 import { authenticatedMiddleware } from "../middlewares/authentication";
+import { roleMiddleware } from "@/middlewares/authorization";
 
 export default (router: express.Router) => {
 	router.get("/types", authenticatedMiddleware, getTypes);
@@ -25,18 +26,21 @@ export default (router: express.Router) => {
 	router.post(
 		"/types",
 		authenticatedMiddleware,
+		roleMiddleware("admin"),
 		createTypeValidator,
 		createType
 	);
 	router.patch(
 		"/types/:id",
 		authenticatedMiddleware,
+		roleMiddleware("admin"),
 		updateTypeValidator,
 		updateType
 	);
 	router.delete(
 		"/types/:id",
 		authenticatedMiddleware,
+		roleMiddleware("admin"),
 		deleteTypeValidator,
 		deleteType
 	);

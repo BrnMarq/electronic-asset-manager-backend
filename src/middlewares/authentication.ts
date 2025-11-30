@@ -2,7 +2,10 @@ import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
 export interface AuthenticatedRequest extends Request {
-	user_id?: number;
+	user?: {
+		id: number;
+		role: string;
+	};
 }
 
 export const authenticatedMiddleware = (
@@ -22,7 +25,7 @@ export const authenticatedMiddleware = (
 		if (err) {
 			return res.sendStatus(403);
 		}
-		req.user_id = user.id;
+		req.user = { id: user.id, role: user.role };
 		next();
 	});
 };
