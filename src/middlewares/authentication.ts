@@ -25,7 +25,9 @@ export const authenticatedMiddleware = (
 		if (err) {
 			return res.sendStatus(403);
 		}
-		req.user = { id: user.id, role: user.role };
+        
+        const roleName = (user.role && typeof user.role === 'object') ? user.role.name : user.role;
+		req.user = { id: user.id, role: roleName };
 		next();
 	});
 };

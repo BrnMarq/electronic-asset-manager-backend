@@ -17,7 +17,7 @@ const includeInAsset = {
 		},
 		{
 			model: Type,
-			attributes: ["id", "name"],
+			attributes: ["id", "name","category"],
 		},
 		{
 			model: User,
@@ -194,21 +194,7 @@ export const deleteAsset = async (req: AuthenticatedRequest, res: Response) => {
 export const updateAsset = async (req: AuthenticatedRequest, res: Response) => {
 	try {
 		const { id } = req.params;
-		const {
-			name,
-			serial_number,
-			type_id,
-			description,
-			responsible_id,
-			location_id,
-			status,
-			cost,
-			acquisition_date,
-			change_reason,
-		} = req.body;
-		const { user } = req;
-
-		const errors = validationResult(req);
+        const errors = validationResult(req);
 		if (!errors.isEmpty()) {
 			return res.status(400).json({ errors: errors.array() });
 		}
@@ -218,16 +204,16 @@ export const updateAsset = async (req: AuthenticatedRequest, res: Response) => {
 			return res.status(404).json({ message: "Asset not found" });
 		}
 
+		const {
+			name, serial_number, type_id, description,
+			responsible_id, location_id, status, cost,
+			acquisition_date, change_reason,
+		} = req.body;
+		const { user } = req;
+
 		const newAssetData = {
-			name,
-			serial_number,
-			type_id,
-			description,
-			responsible_id,
-			location_id,
-			status,
-			cost,
-			acquisition_date,
+			name, serial_number, type_id, description,
+			responsible_id, location_id, status, cost, acquisition_date,
 		};
 
 		for (const key in newAssetData) {
@@ -236,17 +222,28 @@ export const updateAsset = async (req: AuthenticatedRequest, res: Response) => {
 			}
 		}
 
-		if ("location_id" in newAssetData && user.role !== "manager") {
-			return res.status(403).json({
-				message: `Acceso Denegado. Rol '${user.role}' no autorizado para modificar la localización.`,
-			});
-		}
+        
+		if (
+            newAssetData.location_id !== undefined && 
+            Number(newAssetData.location_id) !== asset.location_id
+        ) {
+            if (user.role !== "manager") {
+                return res.status(403).json({
+                    message: `Acceso Denegado. Rol '${user.role}' no autorizado para reubicar activos.`,
+                });
+            }
+        }
 
-		if ("status" in newAssetData && user.role !== "admin") {
-			return res.status(403).json({
-				message: `Acceso Denegado. Rol '${user.role}' no autorizado para modificar el estado.`,
-			});
-		}
+		if (
+            newAssetData.status !== undefined && 
+            newAssetData.status !== asset.status
+        ) {
+            if (user.role !== "admin") {
+                return res.status(403).json({
+                    message: `Acceso Denegado. Rol '${user.role}' no autorizado para modificar el estado.`,
+                });
+            }
+        }
 
 		asset.set(newAssetData);
 
@@ -266,9 +263,11 @@ export const updateAsset = async (req: AuthenticatedRequest, res: Response) => {
 
 		await asset.reload(includeInAsset);
 
-		res
-			.status(200)
-			.json({ message: "Asset updated successfully", asset: asset.toJSON() });
+		res.status(200).json({ 
+            message: "Asset updated successfully", 
+            asset: asset.toJSON() 
+        });
+
 	} catch (error) {
 		res.status(500).json({ message: "Internal server error" });
 		console.error(error);

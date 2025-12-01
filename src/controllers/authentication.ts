@@ -35,7 +35,10 @@ export const login = async (req: express.Request, res: express.Response) => {
 			last_name: user.last_name,
 			username: user.username,
 			email: user.email,
-			role: user.role.name,
+			role: {
+                id: user.role.id,
+                name: user.role.name
+            },
 		};
 
 		const token = jwt.sign(responseUser, config.jwtSecret, {
