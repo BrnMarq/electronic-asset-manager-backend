@@ -65,7 +65,9 @@ export const createUser = async (req: Request, res: Response) => {
 			hashed_password: hashPassword(salt, password),
 		});
 		await user.reload(userInclude);
-		res.status(201).json(user.toJSON());
+		res
+			.status(201)
+			.json({ user: user.toJSON(), message: "User created successfully" });
 	} catch (error) {
 		res.status(500).json({ message: "Internal server error" });
 		console.error(error);
@@ -97,7 +99,7 @@ export const updateUser = async (req: Request, res: Response) => {
 
 		await user.reload(userInclude);
 
-		res.status(200).json(user);
+		res.status(200).json({ user, message: "User updated successfully" });
 	} catch (error) {
 		console.error(error);
 		res.status(500).json({ message: "Internal server error" });
@@ -117,7 +119,9 @@ export const deleteUser = async (req: Request, res: Response) => {
 		if (!user) {
 			return res.status(404).json({ message: "User not found" });
 		}
-		const associatedAssets = await Asset.count({ where: { responsible_id: id } });
+		const associatedAssets = await Asset.count({
+			where: { responsible_id: id },
+		});
 		if (associatedAssets > 0) {
 			return res.status(400).json({
 				message:

@@ -43,7 +43,7 @@ export const createType = async (req: Request, res: Response) => {
 		}
 
 		const type = await Type.create({ name, category, description });
-		res.status(201).json(type);
+		res.status(201).json({ type, message: "Type created successfully" });
 	} catch (error) {
 		console.error(error);
 		res.status(500).json({ message: "Internal server error" });
@@ -68,7 +68,7 @@ export const updateType = async (req: Request, res: Response) => {
 		type.category = category ?? type.category;
 		type.description = description ?? type.description;
 		await type.save();
-		res.status(200).json(type);
+		res.status(200).json({ type, message: "Type updated successfully" });
 	} catch (error) {
 		console.error(error);
 		res.status(500).json({ message: "Internal server error" });
@@ -95,7 +95,7 @@ export const deleteType = async (req: Request, res: Response) => {
 			});
 		}
 		await type.destroy();
-		res.status(204).send();
+		res.status(200).json({ message: "Type deleted successfully" });
 	} catch (error) {
 		console.error(error);
 		res.status(500).json({ message: "Internal server error" });
