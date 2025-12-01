@@ -2,7 +2,7 @@ import { Response } from "express";
 import { validationResult } from "express-validator";
 import { Op } from "sequelize";
 import Asset from "../models/Asset";
-import Changelog, { ChangeLog, ChangeType } from "../models/ChangeLog";
+import { ChangeLog, ChangeType } from "../models/ChangeLog";
 import Location from "../models/Location";
 import Type from "../models/Type";
 import User from "../models/User";
@@ -93,6 +93,34 @@ export const getAssets = async (req: AuthenticatedRequest, res: Response) => {
 	} catch (error) {
 		console.error(error);
 		return res.status(500).json({ message: "Internal server error" });
+	}
+};
+
+export const getAssetsStats = async (
+	req: AuthenticatedRequest,
+	res: Response
+) => {
+	try {
+		const active = await Asset.count({
+			where: { status: "active" },
+		});
+		const inactive = await Asset.count({
+			where: { status: "inactive" },
+		});
+		const cost = await Asset.sum("cost", {
+			where: {
+				[Op.or]: [{ status: "inactive" }, { status: "active" }],
+			},
+		});
+
+		res.status(200).json({
+			active,
+			inactive,
+			cost,
+		});
+	} catch (error) {
+		res.status(500).json({ message: "Internal server error" });
+		console.error(error);
 	}
 };
 

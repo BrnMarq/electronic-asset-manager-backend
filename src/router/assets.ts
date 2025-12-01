@@ -2,6 +2,7 @@ import express from "express";
 
 import {
 	getAssets,
+	getAssetsStats,
 	createAsset,
 	deleteAsset,
 	updateAsset,
@@ -20,6 +21,7 @@ import { roleMiddleware } from "@/middlewares/authorization";
 
 export default (router: express.Router) => {
 	router.get("/assets", authenticatedMiddleware, getAssetsValidator, getAssets);
+	router.get("/assets/stats", authenticatedMiddleware, getAssetsStats);
 	router.get(
 		"/assets/export",
 		authenticatedMiddleware,
