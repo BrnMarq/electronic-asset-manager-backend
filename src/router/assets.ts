@@ -21,18 +21,18 @@ import { roleMiddleware } from "@/middlewares/authorization";
 export default (router: express.Router) => {
 	router.get("/assets", authenticatedMiddleware, getAssetsValidator, getAssets);
 	router.get(
-		"/assets/:id",
-		authenticatedMiddleware,
-		roleMiddleware("admin"),
-		getAssetChangelogValidator,
-		getAssetChangelog
-	);
-	router.get(
 		"/assets/export",
 		authenticatedMiddleware,
 		roleMiddleware("admin", "manager"),
 		getAssetsValidator,
 		exportAssets
+	);
+	router.get(
+		"/assets/:id",
+		authenticatedMiddleware,
+		roleMiddleware("admin"),
+		getAssetChangelogValidator,
+		getAssetChangelog
 	);
 	router.post(
 		"/assets",
