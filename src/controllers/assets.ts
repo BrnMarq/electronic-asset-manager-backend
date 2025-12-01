@@ -17,7 +17,7 @@ const includeInAsset = {
 		},
 		{
 			model: Type,
-			attributes: ["id", "name","category"],
+			attributes: ["id", "name", "category"],
 		},
 		{
 			model: User,
@@ -113,7 +113,8 @@ export const getAssetChangelog = async (
 			order: [["createdAt", "DESC"]],
 			include: [
 				{
-					model: User, as: "user",
+					model: User,
+					as: "user",
 					attributes: ["id", "first_name", "last_name"],
 				},
 			],
@@ -159,7 +160,9 @@ export const createAsset = async (req: AuthenticatedRequest, res: Response) => {
 			created_by: user.id,
 		});
 		const asset = await Asset.findByPk(created_asset.id, includeInAsset);
-		res.status(201).json(asset.toJSON());
+		res
+			.status(201)
+			.json({ asset: asset.toJSON(), message: "Asset created successfully" });
 	} catch (error) {
 		res.status(500).json({ message: "Internal server error" });
 		console.error(error);
@@ -194,7 +197,7 @@ export const deleteAsset = async (req: AuthenticatedRequest, res: Response) => {
 export const updateAsset = async (req: AuthenticatedRequest, res: Response) => {
 	try {
 		const { id } = req.params;
-        const errors = validationResult(req);
+		const errors = validationResult(req);
 		if (!errors.isEmpty()) {
 			return res.status(400).json({ errors: errors.array() });
 		}
@@ -205,15 +208,29 @@ export const updateAsset = async (req: AuthenticatedRequest, res: Response) => {
 		}
 
 		const {
-			name, serial_number, type_id, description,
-			responsible_id, location_id, status, cost,
-			acquisition_date, change_reason,
+			name,
+			serial_number,
+			type_id,
+			description,
+			responsible_id,
+			location_id,
+			status,
+			cost,
+			acquisition_date,
+			change_reason,
 		} = req.body;
 		const { user } = req;
 
 		const newAssetData = {
-			name, serial_number, type_id, description,
-			responsible_id, location_id, status, cost, acquisition_date,
+			name,
+			serial_number,
+			type_id,
+			description,
+			responsible_id,
+			location_id,
+			status,
+			cost,
+			acquisition_date,
 		};
 
 		for (const key in newAssetData) {
@@ -222,28 +239,27 @@ export const updateAsset = async (req: AuthenticatedRequest, res: Response) => {
 			}
 		}
 
-        
 		if (
-            newAssetData.location_id !== undefined && 
-            Number(newAssetData.location_id) !== asset.location_id
-        ) {
-            if (user.role !== "manager") {
-                return res.status(403).json({
-                    message: `Acceso Denegado. Rol '${user.role}' no autorizado para reubicar activos.`,
-                });
-            }
-        }
+			newAssetData.location_id !== undefined &&
+			Number(newAssetData.location_id) !== asset.location_id
+		) {
+			if (user.role !== "manager") {
+				return res.status(403).json({
+					message: `Acceso Denegado. Rol '${user.role}' no autorizado para reubicar activos.`,
+				});
+			}
+		}
 
 		if (
-            newAssetData.status !== undefined && 
-            newAssetData.status !== asset.status
-        ) {
-            if (user.role !== "admin") {
-                return res.status(403).json({
-                    message: `Acceso Denegado. Rol '${user.role}' no autorizado para modificar el estado.`,
-                });
-            }
-        }
+			newAssetData.status !== undefined &&
+			newAssetData.status !== asset.status
+		) {
+			if (user.role !== "admin") {
+				return res.status(403).json({
+					message: `Acceso Denegado. Rol '${user.role}' no autorizado para modificar el estado.`,
+				});
+			}
+		}
 
 		asset.set(newAssetData);
 
@@ -263,11 +279,10 @@ export const updateAsset = async (req: AuthenticatedRequest, res: Response) => {
 
 		await asset.reload(includeInAsset);
 
-		res.status(200).json({ 
-            message: "Asset updated successfully", 
-            asset: asset.toJSON() 
-        });
-
+		res.status(200).json({
+			message: "Asset updated successfully",
+			asset: asset.toJSON(),
+		});
 	} catch (error) {
 		res.status(500).json({ message: "Internal server error" });
 		console.error(error);
