@@ -19,7 +19,7 @@ export default (router: express.Router) => {
 	router.get(
 		"/users",
 		authenticatedMiddleware,
-		roleMiddleware("admin"),
+		roleMiddleware("admin", "manager"),
 		getUsers
 	);
 	router.get(
