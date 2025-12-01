@@ -43,7 +43,9 @@ export const createLocation = async (req: Request, res: Response) => {
 		}
 
 		const location = await Location.create({ name, description });
-		res.status(201).json(location);
+		res
+			.status(201)
+			.json({ location, message: "Location created successfully" });
 	} catch (error) {
 		console.error(error);
 		res.status(500).json({ message: "Internal server error" });
@@ -68,7 +70,9 @@ export const updateLocation = async (req: Request, res: Response) => {
 		location.description = description ?? location.description;
 
 		await location.save();
-		res.status(200).json(location);
+		res
+			.status(200)
+			.json({ location, message: "Location updated successfully" });
 	} catch (error) {
 		console.error(error);
 		res.status(500).json({ message: "Internal server error" });
