@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { validationResult } from "express-validator";
 import Location from "../models/Location";
+import Asset from "../models/Asset";
 
 export const getLocations = async (_: Request, res: Response) => {
 	try {
@@ -86,6 +87,14 @@ export const deleteLocation = async (req: Request, res: Response) => {
 		const location = await Location.findByPk(id);
 		if (!location) {
 			return res.status(404).json({ message: "Location not found" });
+		}
+
+		const associatedAssets = await Asset.count({ where: { location_id: id } });
+		if (associatedAssets > 0) {
+			return res.status(400).json({
+				message:
+					"No se puede eliminar la ubicación porque tiene activos asignados.",
+			});
 		}
 
 		await location.destroy();

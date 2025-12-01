@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { validationResult } from "express-validator";
 import { User } from "../models/User";
 import Role from "../models/Role";
+import Asset from "../models/Asset";
 import { random, hashPassword } from "../utils/hasher";
 
 const userInclude = {
@@ -115,6 +116,13 @@ export const deleteUser = async (req: Request, res: Response) => {
 		const user = await User.findByPk(id);
 		if (!user) {
 			return res.status(404).json({ message: "User not found" });
+		}
+		const associatedAssets = await Asset.count({ where: { responsible_id: id } });
+		if (associatedAssets > 0) {
+			return res.status(400).json({
+				message:
+					"No se puede eliminar el usuario porque es responsable de activos.",
+			});
 		}
 
 		await user.destroy();

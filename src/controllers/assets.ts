@@ -56,12 +56,12 @@ export const getAssets = async (req: AuthenticatedRequest, res: Response) => {
 
 		const { count, rows: assets } = await Asset.findAndCountAll({
 			where: {
-				...(name && { name: { [Op.like]: `%${name}%` } }),
+				...(name && { name: { [Op.iLike]: `%${name}%` } }),
 				...(serial_number && {
-					serial_number: { [Op.like]: `%${serial_number}%` },
+					serial_number: { [Op.iLike]: `%${serial_number}%` },
 				}),
 				...(type_id && { type_id }),
-				...(description && { description: { [Op.like]: `%${description}%` } }),
+				...(description && { description: { [Op.iLike]: `%${description}%` } }),
 				...(responsible_id && { responsible_id }),
 				...(location_id && { location_id }),
 				...(status && { status }),
@@ -330,12 +330,12 @@ export const exportAssets = async (
 				"acquisition_date",
 			],
 			where: {
-				...(name && { name: { [Op.like]: `%${name}%` } }),
+				...(name && { name: { [Op.iLike]: `%${name}%` } }),
 				...(serial_number && {
-					serial_number: { [Op.like]: `%${serial_number}%` },
+					serial_number: { [Op.iLike]: `%${serial_number}%` },
 				}),
 				...(type_id && { type_id }),
-				...(description && { description: { [Op.like]: `%${description}%` } }),
+				...(description && { description: { [Op.iLike]: `%${description}%` } }),
 				...(responsible_id && { responsible_id }),
 				...(location_id && { location_id }),
 				...(status && { status }),

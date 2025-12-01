@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { validationResult } from "express-validator";
 import Type from "../models/Type";
+import Asset from "../models/Asset";
 
 export const getTypes = async (_: Request, res: Response) => {
 	try {
@@ -86,6 +87,12 @@ export const deleteType = async (req: Request, res: Response) => {
 		const type = await Type.findByPk(id);
 		if (!type) {
 			return res.status(404).json({ message: "Type not found" });
+		}
+		const associatedAssets = await Asset.count({ where: { type_id: id } });
+		if (associatedAssets > 0) {
+			return res.status(400).json({
+				message: "No se puede eliminar el tipo porque tiene activos asociados.",
+			});
 		}
 		await type.destroy();
 		res.status(204).send();
